@@ -1,15 +1,21 @@
 package com.springboot.response;
 
+import com.springboot.exception.BusinessLogicException;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import javax.validation.ConstraintViolation;
+import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
 public class ErrorResponse {
+    private int status; // TODO status 필드 추가
+    private String message; // TODO message 필드 추가
     private List<FieldError> fieldErrors;
     private List<ConstraintViolationError> violationErrors;
 
@@ -19,12 +25,31 @@ public class ErrorResponse {
         this.violationErrors = violationErrors;
     }
 
+    // TODO 생성자 오버로딩
+    private ErrorResponse(int status, String message) {
+        this.status = status;
+        this.message = message;
+        this.fieldErrors = null;
+        this.violationErrors = null;
+    }
+
     public static ErrorResponse of(BindingResult bindingResult) {
         return new ErrorResponse(FieldError.of(bindingResult), null);
     }
 
     public static ErrorResponse of(Set<ConstraintViolation<?>> violations) {
         return new ErrorResponse(null, ConstraintViolationError.of(violations));
+    }
+
+    // TODO GlobalExceptionAdvice 기능 추가 1
+    public static ErrorResponse of(BusinessLogicException e) {
+        return new ErrorResponse(e.getExceptionCode().getStatus(), e.getExceptionCode().getMessage());
+    }
+
+    // TODO GlobalExceptionAdvice 기능 추가 2 & 3
+    public static ErrorResponse of(HttpStatus httpStatus) {
+        return new ErrorResponse(httpStatus.value(), httpStatus.getReasonPhrase());
+        // value() (상태코드 값) : int 타입 / getReasonPhrase() (이유 구문) : String 타입
     }
 
     @Getter
