@@ -34,28 +34,27 @@ public class GlobalExceptionAdvice {
         return response;
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler
-    public ResponseEntity handleBusinessLogicException(BusinessLogicException e) {
-        System.out.println(e.getExceptionCode().getStatus());
-        System.out.println(e.getMessage());
+    public ErrorResponse handleBusinessLogicException(BusinessLogicException e) {
+//        System.out.println(e.getExceptionCode().getStatus());
+//        System.out.println(e.getMessage());
 
         // TODO GlobalExceptionAdvice 기능 추가 1
-        final ErrorResponse response = ErrorResponse.of(e);
-        return new ResponseEntity<>(response, HttpStatus.valueOf(e.getExceptionCode()
-                .getStatus()));
+        return ErrorResponse.of(e);
     }
 
     // TODO GlobalExceptionAdvice 기능 추가 2
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     @ExceptionHandler
-    public ResponseEntity handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        final ErrorResponse response = ErrorResponse.of(HttpStatus.METHOD_NOT_ALLOWED); // 응답 메시지
-        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED); // 응답 메시지, 상태 코드
+    public ErrorResponse handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        return ErrorResponse.of(HttpStatus.METHOD_NOT_ALLOWED); // 응답 메시지
     }
 
     // TODO GlobalExceptionAdvice 기능 추가 3
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
-    public ResponseEntity handleException(Exception e) {
-        final ErrorResponse response = ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ErrorResponse handleException(Exception e) {
+        return ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
